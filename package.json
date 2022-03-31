@@ -1,0 +1,27 @@
+{
+  "name": "pis-triggers",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node.exe ./index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@keycloak/keycloak-admin-client": "^17.0.0",
+    "apollo-datasource-rest": "^0.11.0",
+    "body-parser": "^1.19.0",
+    "docx-templates": "^4.9.1",
+    "express": "^4.17.1",
+    "graphql": "^15.5.0",
+    "graphql-request": "^3.4.0",
+    "minio": "^7.0.26",
+    "node-fetch": "^3.2.0",
+    "office-to-pdf": "^4.0.0",
+    "superagent": "^6.1.0",
+    "superagent-xml2jsparser": "^0.1.1"
+  }
+}
