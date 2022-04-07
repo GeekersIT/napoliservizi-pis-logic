@@ -75,10 +75,10 @@ app.post("/segnalazione/insert", async (req, res) => {
   }
   const mutation = gql`
   mutation UpdateSegnalazione(
-    $segnalazione: [segnalazione_insert_input!] = {}
-    $on_conflict: segnalazione_on_conflict = { constraint: segnalazione_pkey }
+    $segnalazione: [pis_segnalazione_insert_input!] = {}
+    $on_conflict: pis_segnalazione_on_conflict = { constraint: segnalazione_pkey }
   ) {
-    insert_segnalazione(objects: $segnalazione, on_conflict: $on_conflict) {
+    insert_pis_segnalazione(objects: $segnalazione, on_conflict: $on_conflict) {
       returning {
         id
         
@@ -91,7 +91,7 @@ app.post("/segnalazione/insert", async (req, res) => {
     on_conflict: input.on_conflict
   });
   res.send({
-    segnalazione_id: response.insert_segnalazione.returning[0].id,
+    segnalazione_id: response.insert_pis_segnalazione.returning[0].id,
   });
 });
 
@@ -122,10 +122,10 @@ app.post("/intervento/straordinario/insert", async (req, res) => {
 
   const mutation = gql`
   mutation UpdateInterventoStraordinario(
-    $intervento_straordinario: [intervento_straordinario_insert_input!] = {}
-    $on_conflict: intervento_straordinario_on_conflict = { constraint: intervento_straordinario_pkey }
+    $intervento_straordinario: [pis_intervento_straordinario_insert_input!] = {}
+    $on_conflict: pis_intervento_straordinario_on_conflict = { constraint: intervento_straordinario_pkey }
   ) {
-    insert_intervento_straordinario(objects: $intervento_straordinario, on_conflict: $on_conflict) {
+    insert_pis_intervento_straordinario(objects: $intervento_straordinario, on_conflict: $on_conflict) {
       returning {
         id
       }
@@ -137,7 +137,7 @@ app.post("/intervento/straordinario/insert", async (req, res) => {
     on_conflict: input.on_conflict
   });
   res.send({
-    intervento_straordinaio_id: response.insert_intervento_straordinaio.returning[0].id,
+    intervento_straordinaio_id: response.insert_pis_intervento_straordinaio.returning[0].id,
   });
 });
 
@@ -158,8 +158,8 @@ app.post("/diario/allegato/insert", async (req, res) => {
   }
 
   const mutation = gql`
-  mutation InsertDiario($objects: [diario_insert_input!] = {}) {
-    insert_diario(objects: $objects) {
+  mutation InsertDiario($objects: [pis_diario_insert_input!] = {}) {
+    insert_pis_diario(objects: $objects) {
       affected_rows
     }
   }
@@ -168,7 +168,7 @@ app.post("/diario/allegato/insert", async (req, res) => {
     objects: input.objects
   });
   res.send({
-    affected_rows: response.insert_diario.affected_rows,
+    affected_rows: response.insert_pis_diario.affected_rows,
   });
 });
 
@@ -178,8 +178,8 @@ app.post("/segnalazione/protocolla", async (req, res) => {
   if (data.old.stato != data.new.stato && data.new.stato == 'APERTA') {
 
     const query = gql
-      `query Segnalazione($where: segnalazione_bool_exp!) {
-      segnalazione(where: $where) {
+      `query Segnalazione($where: pis_segnalazione_bool_exp!) {
+        pis_segnalazione(where: $where) {
         id
         municipalita {
           id

@@ -7,7 +7,7 @@ const config = {
         secret: process.env.KEYCLOAK_ADMIN_SECRET
     },
     db: {
-        url: "hasura."+process.env.NAMESPACE+"/db/v1/graphql",
+        url: "http://hasura."+process.env.NAMESPACE+"/v1/graphql",
     },
     minio: {
         url: "minio."+process.env.NAMESPACE,
@@ -15,10 +15,10 @@ const config = {
         secretKey: process.env.MINIO_SECRET
     },
     template: {
-        url: "minio."+process.env.NAMESPACE + "/template/"
+        url: "http://minio."+process.env.NAMESPACE + ":9000/template/"
     },
     protocollo: {
-        url: "protocollo-service"+process.env.NAMESPACE + ":8080"
+        url: "http://protocollo."+process.env.NAMESPACE
     }
 };
 
