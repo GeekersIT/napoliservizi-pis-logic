@@ -3,7 +3,7 @@ const config = {
         url: "https://" + process.env.PUBLIC_URI + "/auth",
         username: process.env.ADMIN_USER,
         password: process.env.ADMIN_PWD,
-        realm: process.env.KEYCLOAK_REALM,
+        realm: process.env.NAMESPACE,
         secret: process.env.KEYCLOAK_ADMIN_SECRET
     },
     db: {

@@ -23,10 +23,11 @@ const kcAdminClient = new KcAdminClient.default({
 
 const minioClient = new Minio.Client({
   endPoint: config.minio.url,
+  useSSL: false,
+  port: 9000,
   accessKey: config.minio.accessKey,
   secretKey: config.minio.secretKey
 });
-
 
 app.use(bodyParser.json({ limit: '500mb' }));
 app.use(bodyParser.urlencoded({ limit: '500mb', extended: true }));
@@ -100,16 +101,17 @@ app.post("/segnalazione/insert", async (req, res) => {
 
 app.post("/intervento/straordinario/insert", async (req, res) => {
   const input = req.body.input;
-  if (input.intervento_straordinaio.allegati) {
-    input.intervento_straordinaio.allegati.data.map(allegato => {
+
+  if (input.intervento_straordinario.allegati) {
+    input.intervento_straordinario.allegati.data.map(allegato => {
       if (allegato.delete) {
-        minioClient.removeObject('intervento-straordinaio-' + input.intervento_straordinaio.id, allegato.nome, function (err, etag) {
+        minioClient.removeObject('intervento-straordinaio-' + input.intervento_straordinario.id, allegato.nome, function (err, etag) {
           if (err) console.log('Unable to remove object', err)
           console.log('Removed the object')
         });
       } else {
         var file = new Buffer.from(allegato.file.split(',')[1], 'base64');
-        minioClient.putObject('intervento-straordinaio-' + input.intervento_straordinaio.id, 'allegati/' + allegato.nome, file, {
+        minioClient.putObject('intervento-straordinaio-' + input.intervento_straordinario.id, 'allegati/' + allegato.nome, file, {
           'Content-Type': allegato.tipo,
         }, function (err, objInfo) {
           if (err) return console.log(err) // err should be null
@@ -117,7 +119,7 @@ app.post("/intervento/straordinario/insert", async (req, res) => {
         })
       }
     })
-    delete input.intervento_straordinaio.allegati;
+    delete input.intervento_straordinario.allegati;
   }
 
   const mutation = gql`
@@ -133,11 +135,11 @@ app.post("/intervento/straordinario/insert", async (req, res) => {
   }
 `;
   let response = await database.queryFetch(mutation, {
-    intervento_straordinaio: input.intervento_straordinaio,
+    intervento_straordinario: input.intervento_straordinario,
     on_conflict: input.on_conflict
   });
   res.send({
-    intervento_straordinaio_id: response.insert_pis_intervento_straordinaio.returning[0].id,
+    intervento_straordinario_id: response.insert_pis_intervento_straordinario.returning[0].id,
   });
 });
 
@@ -226,9 +228,13 @@ app.post("/segnalazione/protocolla", async (req, res) => {
           numero
           mittente {
             id
-            nome
-            sigla
             codice
+            settore
+            servizio
+            uoc
+            uos
+            postazione
+            nome
           }
           id
           destinatari {
@@ -236,9 +242,13 @@ app.post("/segnalazione/protocolla", async (req, res) => {
             e_esterno
             destinatario_interno {
               id
-              nome
               codice
-              sigla
+              settore
+              servizio
+              uoc
+              uos
+              postazione
+              nome
             }
             destinatario_esterno {
               id
@@ -371,7 +381,8 @@ app.post("/segnalazione/protocolla", async (req, res) => {
     const template = await fetch(
       config.template.url + '/segnalazione.docx'
     ).then((v) => v.arrayBuffer());
-    const segnalazione = response.segnalazione[0];
+    const segnalazione = response.pis_segnalazione[0];
+
     const report = await createReport.default({
       template: template,
       data: segnalazione,
@@ -379,7 +390,7 @@ app.post("/segnalazione/protocolla", async (req, res) => {
     });
     var pdfBuffer = await toPdf(report)
     var file = new Buffer.from(pdfBuffer);
-    var filename = segnalazione.protocollo.numero + ".pdf";
+    var filename = segnalazione.protocollo.numero.replace(/\//g, '_') + ".pdf";
     minioClient.putObject('segnalazione-' + data.new.id, filename, file, {
       'Content-Type': 'application/pdf',
     }, function (err, objInfo) {
